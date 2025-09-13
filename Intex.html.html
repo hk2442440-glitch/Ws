@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Earning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .main-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .content {
+            flex-grow: 1;
+            padding-bottom: 80px; /* Space for the fixed footer */
+        }
+        .hidden {
+            display: none;
+        }
+        .page, .sub-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f0f2f5;
+            z-index: 10;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        .page {
+           z-index: 5;
+           transform: translateX(0);
+           visibility: hidden;
+        }
+         .page.active {
+            visibility: visible;
+         }
+        .sub-page.active {
+            transform: translateX(0);
+        }
+        .header {
+            background-color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 auto;
+            transform: translateX(-12px); /* Center title */
+        }
+        .nav-item.active {
+            color: #ef4444; /* red-500 */
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            margin-top: 8px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+        .btn-primary {
+            background-color: #ef4444;
+            color: white;
+            padding: 12px;
+            border-radius: 9999px; /* pill shape */
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-top: 16px;
+        }
+        .btn-primary:disabled {
+            background-color: #fca5a5;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-top: 16px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .modal-body {
+            color: #4b5563;
+            margin-bottom: 16px;
+        }
+        .modal-button {
+            background-color: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+        }
+        .auth-input-group {
+            display: flex;
+            align-items: center;
+            background-color: #f7f8fa;
+            border-radius: 9999px;
+            padding: 4px 16px;
+            border: 1px solid #e5e7eb;
+        }
+        .auth-input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 12px 8px;
+            outline: none;
+        }
+        .float-up-animation {
+            animation: floatUp 2s ease-out forwards;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fcd34d; /* yellow-400 */
+            font-weight: bold;
+            font-size: 1.25rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -150%) scale(0.8);
+            }
+        }
+        .error-message {
+            color: #ef4444; /* red-500 */
+            font-size: 0.75rem;
+            text-align: right;
+            padding-right: 1rem;
+            display: none;
+        }
+        .auth-input-group.error {
+            border-color: #ef4444;
+        }
+        .home-theme-header {
+            height: 120px; /* Restored original size */
+            background: #ef4444; /* red-500 */
+            position: relative;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="main-container">
+        <div class="content">
+
+            <!-- Auth Pages -->
+            <div id="auth-container">
+                <div id="login-page"></div>
+                <div id="register-page" class="hidden"></div>
+            </div>
+
+            <!-- Main App Content (Logged In State) -->
+            <div id="app-content" class="hidden">
+                <div id="home-page" class="page"></div>
+                <div id="rent-page" class="page"></div>
+                <div id="my-page" class="page"></div>
+                
+                <!-- Sub Pages -->
+                <div id="message-center-page" class="sub-page"></div>
+                <div id="account-info-page" class="sub-page"></div>
+                <div id="account-withdrawal-page" class="sub-page"></div>
+                <div id="flow-details-page" class="sub-page"></div>
+                <div id="my-account-page" class="sub-page"></div>
+                <div id="personal-info-page" class="sub-page"></div>
+                <div id="complaints-page" class="sub-page"></div>
+            </div>
+
+             <!-- Floating Message -->
+            <div id="toast-message" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-sm py-2 px-4 rounded-full z-50">
+                Copied to clipboard!
+            </div>
+             <a id="helpline-btn" href="https://t.me/rentalzoneAAA" target="_blank" class="hidden fixed bottom-24 right-5 z-50 w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg">
+                <i class="ph-headphones text-2xl"></i>
+            </a>
+        </div>
+
+        <!-- Footer Navigation -->
+        <footer id="footer-nav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200" style="max-width: 480px; margin: 0 auto; z-index: 50;">
+        </footer>
+
+        <!-- Custom Modal Placeholder -->
+        <div id="custom-modal" class="modal-overlay hidden"></div>
+    </div>
+
+    <script>
+        // --- ADMIN CONFIGURATION ---
+        const ADMIN_WHATSAPP_NUMBER = "911234567890"; // IMPORTANT: Replace with your actual WhatsApp number
+
+        // --- TEMPLATES ---
+        const pageHeader = (title) => `
+                <header class="header">
+                    <button class="back-btn"><i class="ph-arrow-left text-2xl"></i></button>
+                    <h1>${title}</h1>
+                </header>`;
+
+        const templates = {
+            registerPage: `
+                <div class="p-6 bg-white min-h-screen">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Register</h1>
+                    <form id="register-form" class="space-y-3">
+                        <div>
+                            <div class="auth-input-group">
+                                <i class="ph-device-mobile text-xl text-gray-400"></i>
+                                <span class="pl-2 font-semibold">🇮🇳 +91</span>
+                                <input type="tel" id="reg-phone" class="auth-input" placeholder="Please Enter Phone Number" required>
+                            </div>
+                             <span id="reg-phone-error" class="error-message"></span>
+                        </div>
+                        <div>
+                            <div class="auth-input-group">
+                                <i class="ph-user text-xl text-gray-400"></i>
+                                <input type="text" id="reg-nickname" class="auth-input" placeholder="Please Enter Nickname" required>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="auth-input-group">
+                                <i class="ph-lock text-xl text-gray-400"></i>
+                                <input type="password" id="reg-password" class="auth-input" placeholder="Please Enter Password" required>
+                                <i class="ph-eye text-xl text-gray-400 cursor-pointer"></i>
+                            </div>
+                            <span id="reg-password-error" class="error-message"></span>
+                        </div>
+                         <div>
+                            <div class="auth-input-group">
+                                <i class="ph-user-circle text-xl text-gray-400"></i>
+                                <input type="number" id="reg-age" class="auth-input" placeholder="Please enter age" required>
+                            </div>
+                             <span id="reg-age-error" class="error-message"></span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-8 py-2">
+                             <label class="flex items-center"><input type="radio" name="gender" value="male" class="mr-2" checked> Male</label>
+                             <label class="flex items-center"><input type="radio" name="gender" value="female" class="mr-2"> Female</label>
+                        </div>
+                         <div>
+                            <div class="auth-input-group">
+                                <i class="ph-money text-xl text-gray-400"></i>
+                                <input type="number" id="reg-income" class="auth-input" placeholder="Please enter monthly income" required>
+                            </div>
+                             <span id="reg-income-error" class="error-message"></span>
+                        </div>
+                        <button type="submit" class="btn-primary !bg-red-500">Register Now</button>
+                    </form>
+                     <p class="text-center text-gray-500 mt-6">
+                        Already have an account? <a href="#" class="show-login-link font-semibold text-red-500">Login Now</a>
+                    </p>
+                </div>`,
+            loginPage: `
+                <div class="p-6 bg-white min-h-screen">
+                    <div class="text-center my-8">
+                         <svg class="w-24 h-24 mx-auto" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="48" fill="black"/>
+                            <path d="M30 70 C40 50, 60 50, 70 70" stroke="magenta" stroke-width="4" fill="none"/>
+                            <path d="M30 30 C40 50, 60 50, 70 30" stroke="cyan" stroke-width="4" fill="none"/>
+                            <text x="50" y="58" font-family="Arial, sans-serif" font-size="16" fill="white" text-anchor="middle" font-weight="bold">ws</text>
+                        </svg>
+                    </div>
+                    <div id="rent-banner" class="bg-gray-800 text-white rounded-xl p-4 text-center shadow-lg mb-8 relative overflow-hidden">
+                        <span class="absolute -top-2 -left-2 text-2xl">✨</span>
+                        <p class="font-semibold">Pay rent today</p>
+                        <div id="live-counter" class="flex justify-center space-x-2 mt-2">
+                            <!-- Live numbers will be injected here -->
+                        </div>
+                    </div>
+                    <form id="login-form" class="space-y-4">
+                        <div class="auth-input-group">
+                            <i class="ph-device-mobile text-xl text-gray-400"></i>
+                            <span class="pl-2 font-semibold">🇮🇳 +91</span>
+                            <input type="tel" id="login-phone" class="auth-input" placeholder="Please Enter Phone Number" required>
+                        </div>
+                        <div class="auth-input-group">
+                            <i class="ph-lock text-xl text-gray-400"></i>
+                            <input type="password" id="login-password" class="auth-input" placeholder="Please Enter Password" required>
+                            <i class="ph-eye text-xl text-gray-400 cursor-pointer"></i>
+                        </div>
+                        <div class="text-right text-sm">
+                            <a href="#" class="text-gray-500">Forgot Password?</a>
+                        </div>
+                        <button type="submit" id="login-btn" class="btn-primary !bg-red-500">Login Now</button>
+                        <button type="button" class="show-register-link btn-primary !bg-blue-500">Register Now</button>
+                    </form>
+                </div>`,
+            homePage: `
+                <div class="home-theme-header p-4">
+                    <h2 class="text-xl font-bold text-white">Best WhatsApp Earning website</h2>
+                    <p class="text-sm text-white">make money with easily 💸</p>
+                </div>
+                <div class="p-4 space-y-4 -mt-10">
+                    <div class="card text-center grid grid-cols-3 divide-x" id="home-balance"></div>
+                    <div class="card">
+                        <div class="flex justify-around items-center mb-4" id="home-status-buttons">
+                            <button data-action="work-status" class="px-4 py-2 bg-yellow-400 text-white rounded-full text-sm font-semibold">Work status</button>
+                            <button data-action="rest-status" class="px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm">Rest status</button>
+                            <button data-action="rent-intro" class="px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm">Rent Intro</button>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <p class="text-gray-500">Continuous rental duration</p>
+                            <p class="font-semibold text-gray-800">₹1.00/h</p>
+                        </div>
+                    </div>
+                     <div class="card" id="home-rental-zone">
+                        <div class="flex justify-between items-center mb-2">
+                             <h3 class="font-semibold text-lg">Rental Zone</h3>
+                             <button id="rental-help-btn"><i class="ph-question text-xl text-gray-400"></i></button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button data-platform="whatsapp" class="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center hover:bg-gray-100">
+                                <i class="ph-whatsapp-logo text-5xl text-green-500"></i>
+                                <p class="font-semibold mt-2 text-gray-700">WhatsApp</p>
+                            </button>
+                            <button data-platform="telegram" class="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center cursor-not-allowed opacity-60">
+                                <i class="ph-telegram-logo text-5xl text-blue-500"></i>
+                                <p class="font-semibold mt-2 text-gray-700">Telegram</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>`,
+            rentPage: `
+                ${pageHeader('Rent WhatsApp Account')}
+                <div class="p-4 space-y-4">
+                    <div class="card">
+                        <h3 class="font-semibold text-lg mb-2">Add WhatsApp</h3>
+                        <p class="text-xs text-gray-500 mb-2">Enter Code in Linked WhatsApp</p>
+                         <div class="auth-input-group !rounded-lg">
+                            <button id="country-code-selector" class="flex items-center p-2">
+                                <span id="selected-country-flag" class="w-6 text-center">🇮🇳</span>
+                                <span id="selected-country-code" class="mx-1 font-semibold">+91</span>
+                                <i class="ph-caret-down text-xs"></i>
+                            </button>
+                            <input type="tel" id="rent-wa-number" class="auth-input" placeholder="Please Enter WhatsApp Phone Number" required>
+                        </div>
+                        <button id="obtain-pairing-code-btn" class="btn-primary w-full !bg-red-500 !rounded-lg !mt-4">Obtain pairing code</button>
+                    </div>
+
+                    <div class="bg-white rounded-lg" id="rented-accounts-list">
+                       <!-- Rented accounts will be injected here -->
+                    </div>
+                </div>`,
+            myPage: (user) => `
+                <div class="bg-red-100 pb-20">
+                     <div class="p-4 pt-6 flex justify-between items-center">
+                         <h1 class="text-2xl font-bold text-gray-800">My</h1>
+                         <a href="https://t.me/rentalzoneAAA" target="_blank"><i class="ph-headphones text-2xl text-blue-500 bg-white p-2 rounded-full shadow"></i></a>
+                    </div>
+                    <div class="flex items-center space-x-4 px-4 pt-2 pb-4">
+                        <img src="https://i.pravatar.cc/80" alt="Avatar" class="w-20 h-20 rounded-full border-2 border-white shadow-md">
+                        <div>
+                            <h2 id="user-name" class="text-2xl font-bold text-gray-800">${user.nickname}</h2>
+                            <div class="flex items-center text-sm text-gray-600 mt-1">
+                                <p>Invitation code: <span id="my-invite-code" class="font-semibold">${user.inviteCode}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 space-y-4 -mt-16">
+                    <div id="my-page-balance-card">
+                        ${templates.myPageBalanceCard(user)}
+                    </div>
+                    <div class="bg-white rounded-lg" id="my-page-links">
+                         <a href="#rent" class="flex items-center p-4 border-b">
+                           <i class="ph-plugs-connected text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Rented Accounts</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                         <button id="language-btn" class="w-full flex items-center p-4 border-b text-left">
+                           <i class="ph-globe text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Language</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </button>
+                        <a href="#message-center" class="flex items-center p-4 border-b">
+                           <i class="ph-bell text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Message Center</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                        <a href="#account-info" class="flex items-center p-4 border-b">
+                           <i class="ph-user-circle text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Account Information</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                        <a href="#account-withdrawal" class="flex items-center p-4 border-b">
+                           <i class="ph-bank text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Account Withdrawal</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                        <a href="#flow-details" class="flex items-center p-4 border-b">
+                           <i class="ph-files text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Flow Details</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                        <a href="#my-account" class="flex items-center p-4 border-b">
+                           <i class="ph-wallet text-xl text-gray-500"></i><span class="ml-4 text-gray-700">My Account</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                        <a href="#personal-info" class="flex items-center p-4 border-b">
+                           <i class="ph-lock text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Personal Information and Password</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                        <a href="#complaints" class="flex items-center p-4">
+                           <i class="ph-chats text-xl text-gray-500"></i><span class="ml-4 text-gray-700">Complaints and suggestions</span><i class="ph-caret-right ml-auto text-gray-400"></i>
+                        </a>
+                    </div>
+                    <div class="p-4"><button id="logout-btn" class="w-full bg-red-500 text-white font-bold py-3 rounded-full">Logout</button></div>
+                </div>`,
+             myPageBalanceCard: (user) => {
+                const inviteLink = `${window.location.origin}${window.location.pathname}#register?invite=${user.inviteCode}`;
+                return `
+                <div class="card p-4 rounded-xl shadow-lg bg-white relative">
+                    <div class="grid grid-cols-3 text-center mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Current balance</p>
+                            <p class="font-bold text-2xl text-gray-800">${(user.balance || 0).toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Rental income</p>
+                            <p class="font-bold text-2xl text-gray-800">${(user.rentalIncome || 0).toFixed(2)}</p>
+                        </div>
+                        <div class="flex flex-col items-center justify-center">
+                            <button id="claim-gift-btn" ${user.giftClaimed ? 'disabled' : ''} class="${user.giftClaimed ? 'opacity-50 cursor-not-allowed' : ''}">
+                                <i class="ph-gift text-4xl text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 text-center border-t pt-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Today's Earnings</p>
+                            <p class="font-bold text-lg text-gray-800">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Withdrawn</p>
+                            <p class="font-bold text-lg text-gray-800">${(user.withdrawn || 0).toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-red-500">Freeze Balance</p>
+                            <p class="font-bold text-lg text-red-500">0</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-500">Invitation link</p>
+                        <div class="flex items-center justify-between bg-gray-100 p-2 rounded">
+                            <span class="text-xs text-red-500 truncate">${inviteLink}</span>
+                            <button class="copy-btn text-gray-600 ml-2" data-text-source="invite-link-my-page" data-text-content="${inviteLink}"><i class="ph-copy"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            },
+            footerNav: `
+                <div class="flex justify-around items-center h-16">
+                    <a href="#home" class="nav-item text-center text-gray-500" data-page="home-page"><i class="ph-house text-2xl"></i><span class="text-xs block">Home</span></a>
+                    <a href="#rent" class="nav-item text-center text-gray-500" data-page="rent-page"><i class="ph-storefront text-2xl"></i><span class="text-xs block">Rent</span></a>
+                    <a href="#my" class="nav-item text-center text-gray-500" data-page="my-page"><i class="ph-user-circle text-2xl"></i><span class="text-xs block">My</span></a>
+                </div>`,
+            accountInfoPage: (user) => `
+                ${pageHeader('Account Information')}
+                <div class="p-4 space-y-4">
+                    <div class="card">
+                        <div class="flex justify-between py-3 border-b"><span class="text-gray-500">Avatar</span><img src="https://i.pravatar.cc/40" class="w-10 h-10 rounded-full"></div>
+                        <div class="flex justify-between py-3 border-b"><span class="text-gray-500">Nickname</span><span>${user.nickname}</span></div>
+                         <div class="flex justify-between py-3 border-b"><span class="text-gray-500">Gender</span><span class="capitalize">${user.gender}</span></div>
+                        <div class="flex justify-between py-3"><span class="text-gray-500">Phone</span><span>${user.phone}</span></div>
+                    </div>
+                </div>`,
+            accountWithdrawalPage: (user) => `
+                 ${pageHeader('Account Withdrawal')}
+                 <div class="p-4 space-y-4">
+                    <div class="card">
+                        <h3 class="font-semibold mb-2">Enter Amount</h3>
+                        <input type="number" id="withdrawal-amount" class="form-input" placeholder="₹ 0.00">
+                    </div>
+                    ${user.bankInfo ? `
+                    <div class="card">
+                        <h3 class="font-semibold mb-2">Withdraw to</h3>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p><strong>Name:</strong> ${user.bankInfo.name}</p>
+                            <p><strong>Bank:</strong> ${user.bankInfo.bankName}</p>
+                            <p><strong>Account:</strong> ${user.bankInfo.accountNumber}</p>
+                        </div>
+                    </div>
+                    <button id="submit-withdrawal" class="btn-primary">Submit</button>
+                    ` : `
+                    <div class="card text-center">
+                        <p class="text-gray-600 mb-4">Please add your bank account details before making a withdrawal.</p>
+                        <a href="#personal-info" class="font-semibold text-red-500">Go to Personal Information</a>
+                    </div>
+                    <button id="submit-withdrawal" class="btn-primary" disabled>Submit</button>
+                    `}
+                 </div>`,
+            flowDetailsPage: (transactions) => `
+                ${pageHeader('Flow Details')}
+                <div class="p-4">
+                    ${transactions.length > 0 ? transactions.map(t => `
+                        <div class="card mb-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">${t.type}</p>
+                                    <p class="text-xs text-gray-400">${new Date(t.date).toLocaleString()}</p>
+                                </div>
+                                <p class="font-bold text-lg ${t.amount > 0 ? 'text-green-500' : 'text-red-500'}">₹${t.amount.toFixed(2)}</p>
+                            </div>
+                        </div>`).join('') : '<p class="text-center text-gray-500 mt-8">No transactions yet.</p>'}
+                </div>`,
+             myAccountPage: (user) => `
+                ${pageHeader('My Account')}
+                <div class="p-4 space-y-4">
+                    <div class="card text-center">
+                        <p class="text-gray-500">Total Balance</p>
+                        <p class="text-4xl font-bold my-2">₹${user.balance.toFixed(2)}</p>
+                    </div>
+                    <div class="card grid grid-cols-2 gap-4 text-center">
+                        <div><p class="text-gray-500">Withdrawn</p><p class="font-bold text-lg">₹${user.withdrawn.toFixed(2)}</p></div>
+                        <div><p class="text-gray-500">Rental Income</p><p class="font-bold text-lg">₹${user.rentalIncome.toFixed(2)}</p></div>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-semibold text-lg mb-2">✨ AI Earning Planner</h3>
+                        <p class="text-sm text-gray-500 mb-4">Set a goal and let our AI create a personalized plan to help you get there!</p>
+                        <div>
+                            <label for="earning-goal" class="form-label sr-only">My Earning Goal (₹)</label>
+                            <input type="number" id="earning-goal" class="form-input" placeholder="Enter your earning goal, e.g., 5000">
+                        </div>
+                        <button id="plan-earnings-btn" class="btn-primary w-full flex items-center justify-center">
+                            Generate My Plan
+                        </button>
+                        <div id="earning-plan-container" class="mt-4 hidden">
+                            <div id="gemini-plan-spinner" class="hidden flex justify-center items-center my-4">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                            </div>
+                            <p class="font-semibold mb-2">Your Personal Plan:</p>
+                            <div id="generated-plan" class="bg-gray-100 p-3 rounded-lg text-gray-700 text-sm text-left"></div>
+                        </div>
+                    </div>
+                </div>`,
+            personalInfoPage: (user) => `
+                ${pageHeader('Personal Information')}
+                <div class="p-4 space-y-4">
+                    <form id="change-password-form" class="card space-y-3">
+                        <h3 class="font-semibold text-lg">Change Password</h3>
+                        <input type="password" id="current-password" class="form-input" placeholder="Current Password" required>
+                        <input type="password" id="new-password" class="form-input" placeholder="New Password" required>
+                        <input type="password" id="confirm-new-password" class="form-input" placeholder="Confirm New Password" required>
+                        <button type="submit" class="btn-primary !mt-4">Save Password</button>
+                    </form>
+                    <form id="bank-info-form" class="card space-y-3">
+                        <h3 class="font-semibold text-lg">Bank Account Details</h3>
+                        <input type="text" id="bank-name" class="form-input" placeholder="Your Name" required value="${user.bankInfo?.name || ''}">
+                        <input type="text" id="bank-bankName" class="form-input" placeholder="Bank Name" required value="${user.bankInfo?.bankName || ''}">
+                        <input type="text" id="bank-accountNumber" class="form-input" placeholder="Account Number" required value="${user.bankInfo?.accountNumber || ''}">
+                        <input type="text" id="bank-ifsc" class="form-input" placeholder="IFSC Code" required value="${user.bankInfo?.ifsc || ''}">
+                        <button type="submit" class="btn-primary !mt-4">Save Bank Details</button>
+                    </form>
+                </div>`,
+            complaintsPage: `
+                 ${pageHeader('Complaints and Suggestions')}
+                 <div class="p-4">
+                    <form id="complaint-form" class="card">
+                        <textarea id="complaint-text" rows="6" class="form-input" placeholder="Please write your message here..."></textarea>
+                        <button type="button" id="improve-complaint-btn" class="btn-secondary w-full flex items-center justify-center !mt-4">
+                            <span class="mr-2">✨</span> Improve My Message
+                        </button>
+                        <div id="gemini-complaint-spinner" class="hidden flex justify-center items-center my-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                        </div>
+                        <div id="improved-complaint-container" class="mt-4 hidden">
+                            <p class="font-semibold mb-2">Suggested Improvement:</p>
+                            <p class="text-xs text-gray-500 mb-2">Category: <span id="complaint-category" class="font-medium bg-blue-100 text-blue-800 py-0.5 px-2 rounded-full"></span></p>
+                            <div class="bg-gray-100 p-3 rounded-lg text-gray-700 text-sm whitespace-pre-wrap">Your improved message will appear here. We've also updated the text box above for you.</div>
+                        </div>
+                        <button type="submit" class="btn-primary">Submit Feedback</button>
+                    </form>
+                 </div>`,
+            messageCenterPage: `
+                ${pageHeader('Message Center')}
+                <div class="p-4">
+                    <div class="card">
+                         <div class="flex items-start space-x-3">
+                            <div class="bg-red-500 p-2 rounded-full">
+                                <i class="ph-speaker-high text-xl text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold">System notification</p>
+                                <p class="text-sm text-gray-500">001ws.online</p>
+                                <p class="text-xs text-gray-400">2025-09-02 11:41:08</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-700 space-y-3">
+                            <p><span class="font-bold">I. Limited-time Offer</span><br>Register karte hi milega ₹78 bonus. ₹20 rental income complete karte hi unlock hoga. Usi din tasks complete karke ₹100 withdraw kar sakte ho.</p>
+                        </div>
+                    </div>
+                </div>`
+        };
+
+        // --- APPLICATION LOGIC ---
+        const app = {
+            currentUser: null,
+            liveCounterInterval: null,
+            rentalSimulationInterval: null,
+            countries: [],
+            init() {
+                this.renderAllTemplates();
+                this.setupEventListeners();
+                this.fetchCountries();
+                this.checkAuthState();
+            },
+            renderAllTemplates() {
+                document.getElementById('register-page').innerHTML = templates.registerPage;
+                document.getElementById('login-page').innerHTML = templates.loginPage;
+                document.getElementById('home-page').innerHTML = templates.homePage;
+                document.getElementById('rent-page').innerHTML = templates.rentPage;
+                const agencyPage = document.getElementById('agency-page');
+                if (agencyPage) agencyPage.remove();
+                const activityPage = document.getElementById('activity-page');
+                if (activityPage) activityPage.remove();
+                
+                document.getElementById('my-page').innerHTML = templates.myPage( { nickname: '', inviteCode: '', balance: 0, rentalIncome: 0, withdrawn: 0 } );
+                document.getElementById('footer-nav').innerHTML = templates.footerNav;
+            },
+             async fetchCountries() {
+                try {
+                    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,idd,flags');
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const data = await response.json();
+                    this.countries = data
+                        .filter(c => c.idd && c.idd.root && c.flags.svg)
+                        .map(c => ({
+                            name: c.name.common,
+                            code: `${c.idd.root}${c.idd.suffixes?.[0] || ''}`,
+                            flag: c.flags.svg
+                        }))
+                        .sort((a, b) => a.name.localeCompare(b.name));
+                } catch (error) {
+                    console.error("Failed to fetch country codes:", error);
+                    this.countries = [{name: 'India', code: '+91', flag: '🇮🇳'}, {name: 'Philippines', code: '+63', flag: '🇵🇭'}];
+                }
+            },
+            setupEventListeners() {
+                document.addEventListener('submit', e => {
+                    if (e.target.id === 'register-form') this.handleRegister(e);
+                    if (e.target.id === 'login-form') this.handleLogin(e);
+                });
+
+                document.addEventListener('click', e => {
+                    const target = e.target;
+                    const closestButton = target.closest('button');
+                    const closestLink = target.closest('a');
+
+                    if (target.closest('.show-login-link')) { e.preventDefault(); this.showAuthPage('login'); }
+                    if (target.closest('.show-register-link')) { e.preventDefault(); this.showAuthPage('register'); }
+                    if (target.closest('#logout-btn')) this.handleLogout();
+                    if (closestLink && closestLink.hash) {
+                        e.preventDefault();
+                        window.location.hash = closestLink.hash;
+                    }
+                    if (target.closest('.back-btn')) {
+                        e.preventDefault();
+                        window.history.back();
+                    }
+                     if (target.closest('#shortcut-back-btn')) {
+                        e.preventDefault();
+                        window.history.back();
+                    }
+                    if (target.closest('#shortcut-menu-btn')) {
+                        document.getElementById('shortcut-menu').classList.add('active');
+                    }
+                     if (target.closest('#close-shortcut-menu') || (target.closest('.shortcut-link'))) {
+                        document.getElementById('shortcut-menu').classList.remove('active');
+                    }
+
+                    const homeStatusBtn = target.closest('#home-status-buttons button');
+                    if(homeStatusBtn) {
+                         const action = homeStatusBtn.dataset.action;
+                         if(action === 'work-status') showToast('Work status activated!');
+                         else if(action === 'rest-status') showToast('Rest status activated.');
+                         else if(action === 'rent-intro') showModal('Rent Introduction', 'Rent WhatsApp accounts to earn daily income. Each active account now earns at a rate of ₹1 per hour.');
+                    }
+                    const rentalZoneBtn = target.closest('#home-rental-zone button');
+                    if(rentalZoneBtn) {
+                         const platform = rentalZoneBtn.dataset.platform;
+                         if (platform === 'whatsapp') showRentalMethodModal();
+                         else showToast('This feature is coming soon!');
+                    }
+                    if(target.closest('#rental-help-btn')) {
+                        showModal('Rental Help', 'Rent WhatsApp and Telegram accounts here to start earning. The more accounts you rent, the higher your income.');
+                    }
+                    if(target.closest('#language-btn')) showLanguageModal();
+
+                    if(target.closest('#obtain-pairing-code-btn')) this.handleObtainPairingCode();
+                    const stopRentingBtn = target.closest('.stop-renting-btn');
+                    if(stopRentingBtn) this.handleStopRenting(stopRentingBtn.dataset.phone);
+                    if(target.closest('#country-code-selector')) showCountryCodeModal(this.countries);
+                    
+                    const reauthorizeBtn = target.closest('.reauthorize-btn');
+                    if(reauthorizeBtn) this.handleReauthorize(reauthorizeBtn.dataset.phone);
+                    if(target.closest('#claim-gift-btn')) this.handleClaimGift();
+
+                    const verifyBtn = target.closest('.verify-code-btn');
+                    if(verifyBtn) this.handleVerification(verifyBtn.dataset.phone);
+
+                    const copyBtn = target.closest('.copy-btn');
+                    if(copyBtn) {
+                        const source = copyBtn.dataset.textSource;
+                        let textToCopy = '';
+                        if(source === 'currentUser.inviteCode') {
+                            textToCopy = this.currentUser.inviteCode;
+                        } else if(source === 'invite-link-my-page') {
+                            textToCopy = copyBtn.dataset.textContent;
+                        }
+                         else if (source.startsWith('pairing-code-')) {
+                           const phone = source.replace('pairing-code-', '');
+                           const account = this.currentUser.rentedAccounts.find(a => a.phone === phone);
+                           if(account) textToCopy = account.pairingCode;
+                        } else if (source === 'generated-message') {
+                            textToCopy = document.getElementById('generated-message')?.innerText;
+                        }
+                        
+                        if(textToCopy) navigator.clipboard.writeText(textToCopy).then(() => showToast('Copied!'));
+                    }
+                });
+            },
+            checkAuthState() {
+                const userPhone = localStorage.getItem('loggedInUser');
+                if (userPhone) {
+                    const users = JSON.parse(localStorage.getItem('users')) || [];
+                    this.currentUser = users.find(u => u.phone === userPhone);
+                    if (this.currentUser) {
+                        this.showApp();
+                    } else {
+                        this.handleLogout();
+                    }
+                } else {
+                    this.showAuthPage('login');
+                }
+            },
+            showAuthPage(page) {
+                const authContainer = document.getElementById('auth-container');
+                const appContent = document.getElementById('app-content');
+                const footerNav = document.getElementById('footer-nav');
+                const helplineBtn = document.getElementById('helpline-btn');
+
+                if (authContainer) authContainer.classList.remove('hidden');
+                if (appContent) appContent.classList.add('hidden');
+                if (footerNav) footerNav.classList.add('hidden');
+                if (helplineBtn) helplineBtn.classList.add('hidden');
+                
+                this.stopLiveCounter();
+                this.stopRentalSimulation();
+
+                const loginPage = document.getElementById('login-page');
+                const registerPage = document.getElementById('register-page');
+
+                if (page === 'login') {
+                    if (registerPage) registerPage.classList.add('hidden');
+                    if (loginPage) loginPage.classList.remove('hidden');
+                    this.startLiveCounter();
+                } else {
+                    if (loginPage) loginPage.classList.add('hidden');
+                    if (registerPage) registerPage.classList.remove('hidden');
+                }
+            },
+            showApp() {
+                this.stopLiveCounter();
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                document.getElementById('footer-nav').classList.remove('hidden');
+                document.getElementById('helpline-btn').classList.remove('hidden');
+                
+                this.setupRouting();
+                this.updateUI();
+                this.startRentalSimulation();
+                this.showWelcomePopup();
+            },
+            showWelcomePopup() {
+                const today = new Date().toISOString().slice(0,10);
+                const lastPopupDate = localStorage.getItem(`lastWelcomePopup_${this.currentUser.phone}`);
+                if (lastPopupDate !== today) {
+                    showWelcomeMessage();
+                    localStorage.setItem(`lastWelcomePopup_${this.currentUser.phone}`, today);
+                }
+            },
+            handleRegister(e) {
+                e.preventDefault();
+                
+                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.auth-input-group.error').forEach(el => el.classList.remove('error'));
+
+                let isValid = true;
+
+                const form = e.target;
+                const phone = form.elements['reg-phone'].value.trim();
+                const password = form.elements['reg-password'].value.trim();
+                const age = parseInt(form.elements['reg-age'].value);
+                const income = parseInt(form.elements['reg-income'].value);
+                const nickname = form.elements['reg-nickname'].value.trim();
+
+                if (phone.length !== 10 || !/^\d+$/.test(phone)) {
+                    document.getElementById('reg-phone-error').textContent = 'Phone must be exactly 10 digits.';
+                    document.getElementById('reg-phone-error').style.display = 'block';
+                    document.getElementById('reg-phone').closest('.auth-input-group').classList.add('error');
+                    isValid = false;
+                }
+
+                const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                if (!passwordRegex.test(password)) {
+                    document.getElementById('reg-password-error').textContent = 'Must be 8+ chars with letters & numbers.';
+                    document.getElementById('reg-password-error').style.display = 'block';
+                    document.getElementById('reg-password').closest('.auth-input-group').classList.add('error');
+                    isValid = false;
+                }
+                
+                if (isNaN(age) || age < 20 || age > 80) {
+                    document.getElementById('reg-age-error').textContent = 'Age must be between 20 and 80.';
+                    document.getElementById('reg-age-error').style.display = 'block';
+                    document.getElementById('reg-age').closest('.auth-input-group').classList.add('error');
+                    isValid = false;
+                }
+                
+                if (isNaN(income) || income < 10000 || income > 50000) {
+                    document.getElementById('reg-income-error').textContent = 'Income must be between 10,000 and 50,000.';
+                    document.getElementById('reg-income-error').style.display = 'block';
+                    document.getElementById('reg-income').closest('.auth-input-group').classList.add('error');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                const newUser = {
+                    phone, nickname, password, age, income,
+                    gender: form.querySelector('input[name="gender"]:checked').value,
+                    inviteCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+                    balance: 0.00,
+                    giftBonus: 78.00,
+                    giftClaimed: false,
+                    withdrawn: 0,
+                    rentalIncome: 0,
+                    transactions: [],
+                    bankInfo: null,
+                    rentedAccounts: []
+                };
+
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                if (users.some(u => u.phone === newUser.phone)) {
+                    showModal('Error', 'Phone number already registered.');
+                    return;
+                }
+                
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('loggedInUser', newUser.phone);
+                showModal('Success', 'Registration successful!', () => this.checkAuthState());
+            },
+            handleLogin(e) {
+                e.preventDefault();
+                const phone = document.getElementById('login-phone').value.trim();
+                const password = document.getElementById('login-password').value.trim();
+                
+                if (phone.length !== 10 || !/^\d+$/.test(phone)) {
+                    return showModal('Error', 'Invalid phone number. It must be exactly 10 digits.');
+                }
+
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const user = users.find(u => u.phone === phone && u.password === password);
+                if (user) {
+                    localStorage.setItem('loggedInUser', user.phone);
+                    this.checkAuthState();
+                } else {
+                    showModal('Error', 'Invalid credentials.');
+                }
+            },
+            handleLogout() {
+                localStorage.removeItem('loggedInUser');
+                this.currentUser = null;
+                this.stopRentalSimulation();
+                window.location.hash = '';
+                this.checkAuthState();
+            },
+            updateUI() {
+                if (!this.currentUser) return;
+                
+                const homeBalance = document.getElementById('home-balance');
+                if (homeBalance) {
+                    homeBalance.innerHTML = `
+                        <div><p class="text-sm text-gray-500">Today's Earnings</p><p class="font-bold text-lg">0</p></div>
+                        <div><p class="text-sm text-gray-500">Withdrawn</p><p class="font-bold text-lg">${this.currentUser.withdrawn.toFixed(2)}</p></div>
+                        <div><p class="text-sm text-red-500">Freeze Balance</p><p class="font-bold text-lg text-red-500">0</p></div>`;
+                }
+                
+                const myPage = document.getElementById('my-page');
+                if (myPage) {
+                    myPage.innerHTML = templates.myPage(this.currentUser);
+                }
+            },
+            
+            // --- ROUTING ---
+            setupRouting() {
+                this.handleRouteChange();
+                window.addEventListener('hashchange', this.handleRouteChange.bind(this));
+            },
+            handleRouteChange() {
+                const newHash = window.location.hash.substring(1) || 'home';
+                const [route] = newHash.split('/');
+                const pageId = route.endsWith('-page') ? route : `${route}-page`;
+
+                if (document.getElementById(pageId)) {
+                    this.navigateTo(pageId);
+                } else {
+                     window.location.hash = 'home';
+                }
+            },
+            navigateTo(pageId) {
+                const isSubPage = document.getElementById(pageId)?.classList.contains('sub-page');
+
+                if (isSubPage) {
+                    this.renderSubPageContent(pageId);
+                    document.getElementById(pageId).classList.add('active');
+                } else {
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    document.getElementById(pageId).classList.add('active');
+                    if(pageId === 'rent-page') this.renderRentedAccounts(); 
+                    if(pageId === 'my-page') this.updateUI(); 
+                    document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+                }
+                this.updateActiveNav(pageId);
+            },
+            updateActiveNav(pageId) {
+                const pageName = pageId.replace('-page', '');
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.page === `${pageName}-page`);
+                });
+            },
+            renderSubPageContent(pageId){
+                let content = '';
+                 switch (pageId) {
+                    case 'account-info-page': content = templates.accountInfoPage(this.currentUser); break;
+                    case 'account-withdrawal-page': content = templates.accountWithdrawalPage(this.currentUser); break;
+                    case 'flow-details-page': content = templates.flowDetailsPage(this.currentUser.transactions.slice().reverse()); break;
+                    case 'my-account-page': content = templates.myAccountPage(this.currentUser); break;
+                    case 'personal-info-page': content = templates.personalInfoPage(this.currentUser); break;
+                    case 'complaints-page': content = templates.complaintsPage; break;
+                    case 'message-center-page': content = templates.messageCenterPage; break;
+                }
+                if (content) {
+                    document.getElementById(pageId).innerHTML = content;
+                    this.addSubPageEventListeners(pageId);
+                }
+            },
+            // --- END ROUTING ---
+
+            startLiveCounter() {
+                if (this.liveCounterInterval) clearInterval(this.liveCounterInterval);
+                const counterElement = document.getElementById('live-counter');
+                if (!counterElement) return;
+
+                let rentCounterValue = 0;
+                let tickCounter = 0;
+
+                const updateCounter = () => {
+                    const formattedValue = String(rentCounterValue).padStart(7, '0');
+                    let counterHTML = '';
+                    for (const digit of formattedValue) {
+                        counterHTML += `<span class="bg-yellow-400 text-black font-bold w-8 h-10 flex items-center justify-center rounded">${digit}</span>`;
+                    }
+                    counterElement.innerHTML = counterHTML;
+                };
+                
+                const createFloatAnimation = (amount) => {
+                    const banner = document.getElementById('rent-banner');
+                    if(!banner) return;
+                    const floatEl = document.createElement('span');
+                    floatEl.textContent = `+₹${amount}`;
+                    floatEl.className = 'float-up-animation';
+                    banner.appendChild(floatEl);
+                    setTimeout(() => floatEl.remove(), 2000);
+                }
+                
+                updateCounter();
+
+                this.liveCounterInterval = setInterval(() => {
+                    tickCounter++;
+                    let amountToAdd = 50;
+                    createFloatAnimation(50);
+
+                    if(tickCounter % 4 === 0) { // Every 20 seconds (4 * 5s)
+                        amountToAdd += 150;
+                        setTimeout(() => createFloatAnimation(150), 100); // Stagger animation slightly
+                    }
+                    rentCounterValue += amountToAdd;
+                    updateCounter();
+                }, 5000);
+            },
+            stopLiveCounter() {
+                if (this.liveCounterInterval) {
+                    clearInterval(this.liveCounterInterval);
+                    this.liveCounterInterval = null;
+                }
+            },
+            addSubPageEventListeners(pageId) {
+                const pageElement = document.getElementById(pageId);
+                if (!pageElement) return;
+
+                 if (pageId === 'my-account-page') {
+                    pageElement.querySelector('#plan-earnings-btn').addEventListener('click', this.handlePlanMyEarnings.bind(this));
+                }
+                if (pageId === 'account-withdrawal-page') {
+                    const submitBtn = pageElement.querySelector('#submit-withdrawal');
+                    if (submitBtn) {
+                         submitBtn.addEventListener('click', () => {
+                            const amount = parseFloat(pageElement.querySelector('#withdrawal-amount').value);
+                            if (isNaN(amount) || amount <= 0) return showModal('Error', 'Please enter a valid amount.');
+                            if (amount > this.currentUser.balance) return showModal('Error', 'Insufficient balance.');
+                            
+                            this.currentUser.balance -= amount;
+                            this.currentUser.withdrawn += amount;
+                            this.currentUser.transactions.push({type: 'Withdrawal', amount: -amount, date: new Date()});
+                            this.saveUserData();
+                            showModal('Success', 'Withdrawal request submitted!', () => {
+                                window.history.back();
+                                this.updateUI();
+                            });
+                        });
+                    }
+                }
+                if (pageId === 'personal-info-page') {
+                    pageElement.querySelector('#change-password-form').addEventListener('submit', (e) => {
+                         e.preventDefault();
+                        const current = e.target.elements['current-password'].value;
+                        const newPass = e.target.elements['new-password'].value;
+                        const confirmNew = e.target.elements['confirm-new-password'].value;
+                        if(this.currentUser.password !== current) return showModal('Error', 'Incorrect current password.');
+                        if(newPass !== confirmNew) return showModal('Error', 'New passwords do not match.');
+                        this.currentUser.password = newPass;
+                        this.saveUserData();
+                        showModal('Success', 'Password changed successfully!');
+                    });
+                    pageElement.querySelector('#bank-info-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.currentUser.bankInfo = {
+                            name: pageElement.querySelector('#bank-name').value.trim(),
+                            bankName: pageElement.querySelector('#bank-bankName').value.trim(),
+                            accountNumber: pageElement.querySelector('#bank-accountNumber').value.trim(),
+                            ifsc: pageElement.querySelector('#bank-ifsc').value.trim(),
+                        };
+                        this.saveUserData();
+                        showModal('Success', 'Bank details saved successfully!');
+                    });
+                }
+                 if(pageId === 'complaints-page') {
+                    pageElement.querySelector('#complaint-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        if(pageElement.querySelector('#complaint-text').value.trim() === '') return showModal('Error', 'Message cannot be empty.');
+                        showModal('Success', 'Your message has been submitted.', () => window.history.back());
+                    });
+                    pageElement.querySelector('#improve-complaint-btn').addEventListener('click', this.handleImproveComplaintMessage.bind(this));
+                 }
+            },
+            saveUserData() {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = users.findIndex(u => u.phone === this.currentUser.phone);
+                if (userIndex > -1) {
+                    users[userIndex] = this.currentUser;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            },
+            handleObtainPairingCode() {
+                const phoneInput = document.getElementById('rent-wa-number');
+                const phoneNumber = phoneInput.value.trim();
+                 const countryCode = document.getElementById('selected-country-code').textContent;
+
+                if (!phoneNumber || phoneNumber.length < 6) {
+                    showToast('Please enter a valid phone number.');
+                    return;
+                }
+                const fullNumber = `${countryCode} ${phoneNumber}`;
+                if (this.currentUser.rentedAccounts.some(acc => acc.phone === fullNumber)) {
+                    showModal('Info', 'This WhatsApp number is already being rented.');
+                    return;
+                }
+                
+                 const verificationCode = String(Math.floor(100000 + Math.random() * 900000));
+
+                const newAccount = {
+                    phone: fullNumber,
+                    startTime: 0, 
+                    earnings: 0,
+                    status: 'verifying',
+                    verificationCode: verificationCode, // You would send this to the user
+                    pairingCode: null
+                };
+                this.currentUser.rentedAccounts.push(newAccount);
+                this.saveUserData();
+                this.renderRentedAccounts();
+                phoneInput.value = '';
+                
+                const message = `New Rental Request from user ${this.currentUser.nickname}. Number to rent: ${fullNumber}. Please send them a verification code.`;
+                const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+
+                showModal('Admin Notified', `The administrator has been notified. You will receive a verification code on the number ${fullNumber} shortly.`);
+            },
+            handleVerification(phoneNumber) {
+                const account = this.currentUser.rentedAccounts.find(acc => acc.phone === phoneNumber);
+                const codeInput = document.getElementById(`verify-code-input-${phoneNumber.replace(/\s|\+/g, '')}`);
+                
+                if (account && codeInput) {
+                    const enteredCode = codeInput.value.trim();
+                    // In a real app, this check would be against a code you sent.
+                    // For this simulation, we'll use the one we stored.
+                    if(enteredCode === account.verificationCode) {
+                        account.status = 'pending';
+                        account.pairingCode = Array.from({length: 8}, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join('');
+                        this.saveUserData();
+                        this.renderRentedAccounts();
+                        showToast('Verification successful! Pairing code generated.');
+                    } else {
+                        showToast('Incorrect verification code.');
+                    }
+                }
+            },
+             handleReauthorize(phoneNumber) {
+                const account = this.currentUser.rentedAccounts.find(acc => acc.phone === phoneNumber);
+                if (account) {
+                    // This step is now just for the user to confirm they've linked the device
+                    account.status = 'active';
+                    account.startTime = Date.now();
+                    this.saveUserData();
+                    this.renderRentedAccounts();
+                    showToast('Account is now active and earning!');
+                }
+            },
+            handleStopRenting(phoneNumber) {
+                this.currentUser.rentedAccounts = this.currentUser.rentedAccounts.filter(acc => acc.phone !== phoneNumber);
+                this.saveUserData();
+                this.renderRentedAccounts();
+                showToast('Account stopped renting.');
+            },
+            renderRentedAccounts() {
+                const container = document.getElementById('rented-accounts-list');
+                if (!container) return;
+
+                const header = `<div class="grid grid-cols-4 gap-2 text-center font-semibold text-sm text-gray-500 p-4 border-b">
+                    <span>Account</span>
+                    <span>Duration</span>
+                    <span>Earnings</span>
+                    <span>Status</span>
+                </div>`;
+                
+                const accountsHTML = this.currentUser.rentedAccounts.map(acc => {
+                     let durationStr = '00h00m';
+                     if (acc.status === 'active') {
+                         const durationMs = Date.now() - acc.startTime;
+                         const hours = Math.floor(durationMs / 3600000);
+                         const minutes = Math.floor((durationMs % 3600000) / 60000);
+                         durationStr = `${String(hours).padStart(2, '0')}h${String(minutes).padStart(2, '0')}m`;
+                     }
+
+                    let statusUI = '';
+                    if (acc.status === 'pending') {
+                        statusUI = `<button class="reauthorize-btn bg-yellow-400 text-white px-2 py-1 rounded-full text-xs" data-phone="${acc.phone}">Reauthorize</button>`;
+                    } else if (acc.status === 'active') {
+                        statusUI = `<button class="stop-renting-btn bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs" data-phone="${acc.phone}">Stop Renting</button>`;
+                    } else if (acc.status === 'verifying') {
+                        statusUI = `<span class="text-xs text-blue-500 font-semibold">Verifying...</span>`;
+                    }
+                    
+                    let extraUI = '';
+                    if (acc.status === 'verifying') {
+                        extraUI = `<div class="col-span-4 p-2 bg-gray-50 text-xs text-center flex items-center gap-2">
+                                       <input type="text" id="verify-code-input-${acc.phone.replace(/\s|\+/g, '')}" class="form-input !mt-0 text-center" placeholder="Enter Code">
+                                       <button class="verify-code-btn bg-green-500 text-white px-3 py-2 rounded-lg text-xs" data-phone="${acc.phone}">Verify</button>
+                                   </div>`;
+                    } else if (acc.status === 'pending') {
+                        extraUI = `<div class="col-span-4 p-2 bg-gray-50 text-xs text-center">
+                                Pairing Code: <span class="font-mono">${acc.pairingCode}</span>
+                                <button class="copy-btn text-blue-500 ml-2" data-text-source="pairing-code-${acc.phone}"><i class="ph-copy"></i></button>
+                           </div>`;
+                    }
+                    
+                    return `<div class="grid grid-cols-4 gap-2 text-center text-sm items-center p-4 border-b">
+                                <span>${acc.phone}</span>
+                                <span>${durationStr}</span>
+                                <span>${acc.earnings.toFixed(2)}</span>
+                                <span>${statusUI}</span>
+                                ${extraUI}
+                            </div>`;
+                }).join('');
+
+                container.innerHTML = header + (this.currentUser.rentedAccounts.length > 0 ? accountsHTML : '<p class="text-center text-gray-400 p-8">No accounts are currently being rented.</p>');
+            },
+            startRentalSimulation() {
+                if (this.rentalSimulationInterval) clearInterval(this.rentalSimulationInterval);
+                this.rentalSimulationInterval = setInterval(() => {
+                    let updated = false;
+                    let totalEarningsThisTick = 0;
+                    if (this.currentUser && this.currentUser.rentedAccounts.length > 0) {
+                        this.currentUser.rentedAccounts.forEach(acc => {
+                            if (acc.status === 'active') {
+                                const earningsPerHour = 1;
+                                const intervalsPerHour = 3600 / 5; // 5 second interval
+                                const earningsThisTick = earningsPerHour / intervalsPerHour;
+                                 acc.earnings += earningsThisTick;
+                                 totalEarningsThisTick += earningsThisTick;
+                                updated = true;
+                            }
+                        });
+                        
+                        if (updated) {
+                            this.currentUser.rentalIncome += totalEarningsThisTick;
+                            this.currentUser.balance += totalEarningsThisTick;
+                            this.saveUserData();
+                            if (document.getElementById('rent-page').classList.contains('active')) {
+                                this.renderRentedAccounts();
+                            }
+                            this.updateUI();
+                        }
+                    }
+                }, 5000);
+            },
+            stopRentalSimulation() {
+                 if (this.rentalSimulationInterval) {
+                    clearInterval(this.rentalSimulationInterval);
+                    this.rentalSimulationInterval = null;
+                }
+            },
+            handleClaimGift() {
+                if (this.currentUser.giftClaimed) {
+                    showToast('Welcome gift already claimed!');
+                    return;
+                }
+
+                const giftAmount = this.currentUser.giftBonus || 78.00;
+                this.currentUser.balance += giftAmount;
+                this.currentUser.giftClaimed = true;
+                this.currentUser.transactions.push({
+                    type: 'Welcome Gift Claimed',
+                    amount: giftAmount,
+                    date: new Date()
+                });
+                
+                this.saveUserData();
+                this.updateUI(); 
+                showModal('Congratulations!', `You have successfully claimed your ₹${giftAmount.toFixed(2)} welcome gift!`);
+            },
+             async callGemini(prompt) {
+                const apiKey = ""; // Will be replaced by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                try {
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        return candidate.content.parts[0].text;
+                    } else {
+                        return candidate?.finishReason === 'SAFETY' ? "Response blocked for safety reasons." : "Sorry, could not generate a message.";
+                    }
+                } catch (error) {
+                    console.error("Gemini API call error:", error);
+                    return "An error occurred while generating the message.";
+                }
+            },
+            async handlePlanMyEarnings() {
+                const pageElement = document.getElementById('my-account-page');
+                const goalAmount = pageElement.querySelector('#earning-goal').value;
+
+                if (!goalAmount || isNaN(goalAmount) || goalAmount <= 0) {
+                    showModal('Info', 'Please enter a valid earning goal.');
+                    return;
+                }
+
+                const container = pageElement.querySelector('#earning-plan-container');
+                const spinner = pageElement.querySelector('#gemini-plan-spinner');
+                const planDiv = pageElement.querySelector('#generated-plan');
+                const planBtn = pageElement.querySelector('#plan-earnings-btn');
+
+                container.classList.remove('hidden');
+                spinner.classList.remove('hidden');
+                planDiv.innerHTML = '';
+                planBtn.disabled = true;
+                planBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                const prompt = `You are a motivational financial coach for an online earning app. A user, ${this.currentUser.nickname}, wants to reach an earning goal of ₹${goalAmount}. 
+                
+                Here is their current status:
+                - Current Balance: ₹${this.currentUser.balance.toFixed(2)}
+                - Total Rental Income: ₹${this.currentUser.rentalIncome.toFixed(2)}
+                - Rented WhatsApp Accounts: ${this.currentUser.rentedAccounts.length}
+
+                The app has the following ways to earn:
+                1.  **Renting WhatsApp Accounts:** Each account earns ₹1 per hour.
+                2.  **Referrals:** Inviting friends provides commission.
+                3.  **Daily Tasks:** Completing small daily tasks provides income.
+
+                Create a simple, encouraging, and step-by-step plan for ${this.currentUser.nickname} to reach their goal. Use markdown for formatting (bolding, lists using hyphens). Start with a positive opening and end with a motivational closing statement. Address the user by their name.`;
+
+                const generatedPlan = await this.callGemini(prompt);
+
+                spinner.classList.add('hidden');
+                planDiv.innerHTML = generatedPlan
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                    .replace(/-(.*?)\n/g, '<li class="ml-4 list-disc">$1</li>')
+                    .replace(/\n/g, '<br>');
+                planBtn.disabled = false;
+                planBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        };
+
+        // --- GLOBAL UTILITY FUNCTIONS ---
+        function showModal(title, message, callback) {
+            const modalContainer = document.getElementById('custom-modal');
+            modalContainer.innerHTML = `
+                <div class="modal-content">
+                    <h3 class="modal-title">${title}</h3>
+                    <p class="modal-body">${message}</p>
+                    <button id="modal-ok-btn" class="modal-button">OK</button>
+                </div>`;
+            modalContainer.classList.remove('hidden');
+            document.getElementById('modal-ok-btn').addEventListener('click', () => {
+                modalContainer.classList.add('hidden');
+                if (callback) callback();
+            });
+        }
+        function showWelcomeMessage() {
+            const modalContainer = document.getElementById('custom-modal');
+            modalContainer.innerHTML = `
+                 <div class="modal-content !text-left">
+                    <div class="space-y-3 text-sm text-gray-700">
+                        <p class="font-semibold text-base text-gray-800">✅ रजिस्टर करो और तुरंत ₹78 पाओ</p>
+                        <p class="text-xs ml-4">(5 WhatsApp टास्क पूरे करो = ₹20, और ₹100 विड्रॉ अनलॉक करो)</p>
+                        
+                        <p class="font-semibold text-base text-gray-800 mt-2">🕒 ऑनलाइन बोनस:</p>
+                        <p class="ml-4">09:00 – 15:00 = ₹3</p>
+                        <p class="ml-4">06:00 – 23:00 = ₹9</p>
+
+                        <p class="font-semibold text-base text-gray-800 mt-2">🤖 AI टास्क (3-20 रोजाना):</p>
+                        <p class="ml-4">WhatsApp = ₹4/टास्क</p>
+                        <p class="ml-4">Telegram = ₹0.2/टास्क</p>
+                    </div>
+                    <button id="modal-ok-btn" class="modal-button !mt-6">OK</button>
+                </div>`;
+            modalContainer.classList.remove('hidden');
+            document.getElementById('modal-ok-btn').addEventListener('click', () => {
+                modalContainer.classList.add('hidden');
+            });
+        }
+        function showRentalMethodModal() {
+             const modalContainer = document.getElementById('custom-modal');
+            modalContainer.innerHTML = `
+                <div class="modal-content !p-0 !text-left">
+                   <button class="w-full text-center p-4 border-b hover:bg-gray-50" data-method="whatsapp-rental">WhatsAppRental method</button>
+                   <button class="w-full text-center p-4 border-b hover:bg-gray-50" data-method="qr-code">QR code rental</button>
+                   <button class="w-full text-center p-4 border-b hover:bg-gray-50" data-method="pairing-code">Pairing code rental</button>
+                   <button id="modal-cancel-btn" class="w-full text-center p-4 font-semibold text-red-500 hover:bg-gray-50">Cancel</button>
+                </div>`;
+            modalContainer.classList.remove('hidden');
+
+            modalContainer.addEventListener('click', e => {
+                 const button = e.target.closest('button');
+                 if (!button) return;
+                
+                 modalContainer.classList.add('hidden');
+                 if (button.id === 'modal-cancel-btn') return;
+                
+                 const method = button.dataset.method;
+                 if (method === 'pairing-code') {
+                     window.location.hash = '#rent';
+                 } else {
+                     showToast('This rental method is coming soon.');
+                 }
+            }, { once: true });
+        }
+        
+         function showCountryCodeModal(countries) {
+            const modalContainer = document.getElementById('custom-modal');
+            let listHTML = countries.map(c => `
+                <li class="flex items-center p-2 hover:bg-gray-100 cursor-pointer" data-code="${c.code}" data-flag="${c.flag}">
+                    <img src="${c.flag}" class="w-6 h-auto mr-3">
+                    <span>${c.name} (${c.code})</span>
+                </li>
+            `).join('');
+
+            modalContainer.innerHTML = `
+                <div class="modal-content !p-4" style="max-height: 80vh; display: flex; flex-direction: column;">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="modal-title">Select Country</h3>
+                        <button id="modal-close-btn" class="text-2xl">&times;</button>
+                    </div>
+                    <input type="text" id="country-search" class="form-input w-full !my-2" placeholder="Search for country...">
+                    <ul id="country-list" class="flex-1 overflow-y-auto text-left">${listHTML}</ul>
+                </div>`;
+            modalContainer.classList.remove('hidden');
+            
+            const searchInput = document.getElementById('country-search');
+            const countryList = document.getElementById('country-list');
+
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                countryList.querySelectorAll('li').forEach(item => {
+                    const countryName = item.textContent.toLowerCase();
+                    item.style.display = countryName.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+
+            countryList.addEventListener('click', e => {
+                const item = e.target.closest('li');
+                if(item) {
+                    document.getElementById('selected-country-flag').innerHTML = `<img src="${item.dataset.flag}" class="w-6 h-auto">`;
+                    document.getElementById('selected-country-code').textContent = item.dataset.code;
+                    modalContainer.classList.add('hidden');
+                }
+            });
+
+             document.getElementById('modal-close-btn').addEventListener('click', () => modalContainer.classList.add('hidden'));
+        }
+        
+        function showLanguageModal() {
+            const modalContainer = document.getElementById('custom-modal');
+            const languages = ['Hindi', 'English', 'Culture', 'Chinese'];
+            let langHTML = languages.map(lang => `<button class="w-full text-center p-4 border-b hover:bg-gray-50" data-lang="${lang}">${lang}</button>`).join('');
+
+            modalContainer.innerHTML = `
+                <div class="modal-content !p-0 !text-left">
+                    <h3 class="modal-title p-4 border-b">Select Language</h3>
+                    ${langHTML}
+                    <button id="modal-cancel-btn" class="w-full text-center p-4 font-semibold text-red-500 hover:bg-gray-50">Cancel</button>
+                </div>`;
+             modalContainer.classList.remove('hidden');
+
+             modalContainer.addEventListener('click', e => {
+                const button = e.target.closest('button');
+                if(!button) return;
+                modalContainer.classList.add('hidden');
+                if(button.dataset.lang) {
+                    showToast(`Language set to ${button.dataset.lang}`);
+                }
+             }, {once: true});
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-message');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2000);
+        }
+
+        // --- START APP ---
+        document.addEventListener('DOMContentLoaded', () => app.init());
+
+    </script>
+</body>
+</html>
+
